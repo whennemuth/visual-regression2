@@ -8,7 +8,6 @@ import bu.ist.visreg.basket.Basket.BasketEnum;
 import bu.ist.visreg.basket.filesystem.FileBasketSystem;
 import bu.ist.visreg.basket.s3.S3BasketSystem;
 import bu.ist.visreg.basket.s3.S3Bucket;
-import software.amazon.awssdk.regions.Region;
 
 public abstract class BasketSystem {
 
@@ -25,7 +24,7 @@ public abstract class BasketSystem {
 				bs = new FileBasketSystem(rootLocation);
 				break;
 			case S3:
-				S3Bucket bucket = new S3Bucket(rootLocation, Region.US_EAST_1, true);
+				S3Bucket bucket = new S3Bucket(rootLocation, true);
 				bs = new S3BasketSystem(bucket);
 				break;
 		}
@@ -83,6 +82,20 @@ public abstract class BasketSystem {
 
 
 	
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder("BasketSystem [\n");
+		s.append("  rootLocation=").append(rootLocation).append("\n")
+		 .append("  baskets=[\n");
+		for(Basket b : baskets) {
+			s.append("    ").append(b.toString().replaceAll("\\n", "\n    ")).append("\n");
+		}
+		s.append("  ]\n").append("]");
+		return s.toString();
+	}
+
+
+
 	public static enum BasketType {
 		S3, FILESYSTEM;
 		public static BasketType getValue(String val) {

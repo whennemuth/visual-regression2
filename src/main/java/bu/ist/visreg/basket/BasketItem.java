@@ -44,13 +44,16 @@ public abstract class BasketItem {
 			nextBasket.addBasketItem(this);
 			this.basket = nextBasket;
 			
-			boolean committed = commitBasketMove(nextBasket);
-			
-			if(!committed) {
-				throw new RuntimeException(String.format(
+			try {
+				commitBasketMove(nextBasket);
+			} 
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.err.println(String.format(
 						"ERROR! Failed to move %s to %s",
 						pathname,
 						nextBasket.getIdentifier()));
+				return false;
 			}
 			return true;
 		}
@@ -58,11 +61,11 @@ public abstract class BasketItem {
 	}
 	
 	/**
-	 * The basket system has been updated at this point, but it is just a representation of
-	 * the real thing, an underlying storage system (ie: files, cloudstorage, etc). So move
-	 * the actual item.
+	 * The basket system has been updated to reflect items moving between baskets at this point, 
+	 * but it is just a representation of the real thing, an underlying storage system (ie: files, 
+	 * cloudstorage, etc). So, move the actual item.
 	 */	
-	public abstract boolean commitBasketMove(Basket nextBasket);
+	public abstract void commitBasketMove(Basket nextBasket) throws Exception;
 	
 	
 	@Override
@@ -99,5 +102,11 @@ public abstract class BasketItem {
 		} else if (!pathname.equals(other.pathname))
 			return false;
 		return true;
-	}	
+	}
+	@Override
+	public String toString() {
+		return "BasketItem [pathname=" + pathname + ", failed=" + failed + "]";
+	}
+	
+	
 }

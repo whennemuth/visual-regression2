@@ -29,29 +29,40 @@ public class S3Basket extends Basket {
 
 	@Override
 	public void load() {
-		// RESUME NEXT: for each bucket subfolder, load the contents of those that match in name to basketEnum.getBasketName()
-		
 		bucket.getS3Objects().values().stream()
-			.filter(o -> o.key().startsWith(subfolder.key()))
+			.filter(o -> this.contains(o))
 			.forEach(o -> {
-				String content = null;
-				// RESUME NEXT: Download/Stream the actual file content down from S3 into this variable.
+				String content = bucket.downloadAsString(o.key());
 				BasketItem bi = new S3BasketItem(this, o.key(), content);
 				addBasketItem(bi);
 			});
-		
-//		for(File f : folder.listFiles()) {
-//			BasketItem bi = new FileBasketItem(this, f.getAbsolutePath(), getFileContent(f));
-//			addBasketItem(bi);
-//		}
 	}
 
 	@Override
 	public String getIdentifier() {
+		if(subfolder != null) {
+			return subfolder.key();
+		}
 		if(bucketPath == null) {
 			bucketPath = parent.getRootLocation() + "/" + super.basketEnum.getBasketRelativeLocation();
 		}
 		return bucketPath;
+	}
+	
+	public S3Bucket getBucket() {
+		return bucket;
+	}
+
+	/**
+	 * This basket, itself a subfolder within an S3 bucket, contains the provided s3 object if that object
+	 * starts with the same s3 path.
+	 * @param o
+	 * @return
+	 */
+	private boolean contains(S3Object o) {
+		if( ! o.key().startsWith(subfolder.key())) return false;
+		if( ! (o.key().length() > subfolder.key().length())) return false;
+		return true;
 	}
 
 }

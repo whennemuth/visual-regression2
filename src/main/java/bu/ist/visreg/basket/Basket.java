@@ -66,6 +66,20 @@ public abstract class Basket {
 
 
 
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder("Basket [\n");
+		s.append("  basketEnum=").append(basketEnum).append("\n")
+		 .append("  basketItems [\n");
+		for(BasketItem b : basketItems) {
+			s.append("    ").append(b).append("\n");
+		}
+		s.append("  ]\n").append("]");		
+		return s.toString();
+	}
+
+
+
 	public static enum BasketEnum {
 		INBOX("inbox"),
 		IN_PROCESS("processing"),

@@ -82,7 +82,6 @@ public class Processor {
 	
 	
 	/**
-	 * RESUME NEXT: Test this for input parameters "c:\\whennemuth\\scrap\\visreg", "filessytem"
 	 * @param args
 	 */
 	public static void main(String[] args) {

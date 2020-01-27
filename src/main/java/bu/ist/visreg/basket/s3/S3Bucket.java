@@ -1,19 +1,27 @@
 package bu.ist.visreg.basket.s3;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import bu.ist.visreg.util.ArgumentParser;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.CopyObjectResponse;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
@@ -28,6 +36,7 @@ public class S3Bucket {
 	private Region region = Region.US_EAST_1;
 	private boolean create;
 	private Map<String, S3Object> s3Objects = new HashMap<String, S3Object>();
+	private S3Client s3;
 
 	@SuppressWarnings("unused")
 	private S3Bucket() { /* Restrict default constructor */ }
@@ -38,6 +47,7 @@ public class S3Bucket {
 		}
 		this.bucketName = bucketName;
 		this.create = create;
+		this.s3 = S3Client.builder().region(region).build();
 		
 		inventory();
 	}
@@ -52,8 +62,6 @@ public class S3Bucket {
 	 */
 	private void inventory() throws Exception {
         try {
-            S3Client s3 = S3Client.builder().region(region).build();
-
             ListObjectsRequest listObjects = ListObjectsRequest
                     .builder()
                     .bucket(bucketName)
@@ -85,14 +93,12 @@ public class S3Bucket {
 	}
 	
 	private boolean bucketExists() {
-        S3Client s3 = S3Client.builder().region(region).build();
         ListBucketsRequest listBucketsRequest = ListBucketsRequest.builder().build();
         ListBucketsResponse listBucketsResponse = s3.listBuckets(listBucketsRequest);        
         return listBucketsResponse.buckets().stream().anyMatch(bucket -> bucket.name().equals(bucketName));
 	}
 	
 	private void createBucket() throws Exception {
-		S3Client s3 = S3Client.builder().region(region).build();
 		CreateBucketRequest request = null;
 		/**
 		 * Per: https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLocation.html#API_GetBucketLocation_ResponseSyntax
@@ -146,7 +152,6 @@ public class S3Bucket {
 	}
 	
 	private void upload(String pathname, byte[] bytes) throws Exception {
-		S3Client s3 = S3Client.builder().region(region).build();
 
         PutObjectRequest request = PutObjectRequest.builder()
         	.bucket(bucketName)
@@ -154,6 +159,55 @@ public class S3Bucket {
         	.build();
         		 
 		s3.putObject(request, RequestBody.fromBytes(bytes));
+	}
+	
+	public String downloadAsString(String pathname) {
+		return s3.getObject(GetObjectRequest.builder().bucket(this.bucketName).key(pathname).build(),
+        	ResponseTransformer.toBytes()).asUtf8String();
+	}
+	
+	public void copyObject(String filename, String newFolderPath) throws Exception {
+		copyObject(filename, newFolderPath, null);
+	}
+	
+	public void copyObject(String filepath, String newFolderPath, String newName) throws Exception {
+		String encodedUrl = URLEncoder.encode(filepath, StandardCharsets.UTF_8.toString());
+		if( ! newFolderPath.endsWith("/")) {
+			newFolderPath = newFolderPath + "/";
+		}
+		
+		if(newName == null) {
+			String[] parts = filepath.split("/");
+			newName = parts[parts.length-1];
+		}
+
+		CopyObjectRequest copyReq = CopyObjectRequest.builder()
+				.copySource(encodedUrl)
+				.destinationBucket(bucketName)
+				.destinationKey(newFolderPath + newName)
+				.build();
+
+		System.out.println("Moving " + filepath + " to " + newFolderPath + newName);
+		CopyObjectResponse copyRes = s3.copyObject(copyReq);
+		System.out.println(copyRes.copyObjectResult().toString());
+		
+		deleteObject(filepath);
+	}
+	
+	public void deleteObject(String filepath) {
+		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(filepath).build();
+		s3.deleteObject(deleteObjectRequest);
+	}
+	
+	public void moveObject(String filename, String newFolderPath) throws Exception {
+		copyObject(filename, newFolderPath, null);
+	}
+	
+	public void moveObject(String filename, String newFolderPath, String newName) throws Exception {
+		
+		moveObject(filename, newFolderPath, newName);
+		
+		deleteObject(filename);
 	}
 	
 	public String getBucketName() {
@@ -173,7 +227,7 @@ public class S3Bucket {
 	}
 	
 	public S3Object getSubFolder(String folderName) {
-		if(folderName.endsWith("/")) {
+		if( ! folderName.endsWith("/")) {
 			folderName = folderName + "/";
 		}
 		return getS3Object(folderName);

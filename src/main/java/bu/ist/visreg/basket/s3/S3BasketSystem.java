@@ -39,11 +39,6 @@ public class S3BasketSystem extends BasketSystem {
 	public S3Bucket getBucket() {
 		return bucket;
 	}    
-    
-    @Override
-	public String toString() {
-		return "S3BasketSystem [bucket=" + bucket + "]";
-	}
 
 	public static void main(String[] args) throws Exception {    	
     	S3Bucket bucket = S3Bucket.parseArgs(args);    	

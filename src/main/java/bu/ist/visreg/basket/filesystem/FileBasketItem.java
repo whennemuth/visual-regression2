@@ -12,7 +12,7 @@ public class FileBasketItem extends BasketItem {
 	}
 
 	@Override
-	public boolean commitBasketMove(Basket nextBasket) {
+	public void commitBasketMove(Basket nextBasket) throws Exception {
 		
 		File f = new File(pathname);
 		if(f.isFile()) {
@@ -20,11 +20,10 @@ public class FileBasketItem extends BasketItem {
 			File targetFile = new File(targetFolder.getAbsolutePath() + "\\" + f.getName());
 			boolean commited = f.renameTo(targetFile);
 			if(!commited) {
-				System.out.println(String.format(
+				throw new RuntimeException(String.format(
 						"ERROR! Failed to move %s to %s",
 						f.getAbsolutePath(),
 						targetFolder));
-				return false;
 			}
 			else {
 				this.pathname = targetFile.getAbsolutePath();
@@ -32,10 +31,8 @@ public class FileBasketItem extends BasketItem {
 						"Moved %s to %s",
 						f.getAbsolutePath(),
 						targetFolder));
-				return true;
 			}
 		}
-		return false;
 	}
 	
 }
