@@ -109,5 +109,15 @@ public abstract class Basket {
 				default: return null;
 			}
 		}
+		public static String concatenatedList() {
+			StringBuilder s = new StringBuilder();
+			for(BasketEnum name: BasketEnum.values()) {
+				if(s.length() > 0) {
+					s.append(", ");
+				}
+				s.append(name);
+			}
+			return s.toString();
+		}
 	}
 }

@@ -48,12 +48,11 @@ public abstract class BasketItem {
 				commitBasketMove(nextBasket);
 			} 
 			catch (Exception e) {
-				// TODO Auto-generated catch block
 				System.err.println(String.format(
 						"ERROR! Failed to move %s to %s",
 						pathname,
 						nextBasket.getIdentifier()));
-				return false;
+				throw e;
 			}
 			return true;
 		}
@@ -63,7 +62,7 @@ public abstract class BasketItem {
 	/**
 	 * The basket system has been updated to reflect items moving between baskets at this point, 
 	 * but it is just a representation of the real thing, an underlying storage system (ie: files, 
-	 * cloudstorage, etc). So, move the actual item.
+	 * cloud storage, etc). So, move the actual item.
 	 */	
 	public abstract void commitBasketMove(Basket nextBasket) throws Exception;
 	

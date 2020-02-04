@@ -47,7 +47,16 @@ public class Processor {
 	}
 	
 	private static void printUsage() {
-		
+		System.out.println("\n"
+				+ "Usage:\n"
+				+ "  b|basket-type: "
+				+ BasketType.concatenatedList()
+				+ "\n"
+				+ "  r|root: Path where the basket system physically exists.\n"
+				+ "\n"
+				+ "Examples:\n"
+				+ "  --basket-type " + BasketType.FILESYSTEM.name() + " --root /opt/visual-regression/baskets\n"
+				+ "  --basket-type " + BasketType.S3.name() + " --root my-bucket\n");
 	}
 
 	public void process(BasketEnum basketType) {

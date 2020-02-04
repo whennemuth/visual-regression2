@@ -14,7 +14,7 @@ public class S3BasketItem extends BasketItem {
 
 	@Override
 	public void commitBasketMove(Basket nextBasket) throws Exception {
-		bucket.moveObject(super.pathname, nextBasket.getIdentifier());
+		super.pathname = bucket.moveObject(super.pathname, nextBasket.getIdentifier());
 	}
 
 }

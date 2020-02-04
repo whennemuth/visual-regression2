@@ -166,48 +166,54 @@ public class S3Bucket {
         	ResponseTransformer.toBytes()).asUtf8String();
 	}
 	
-	public void copyObject(String filename, String newFolderPath) throws Exception {
-		copyObject(filename, newFolderPath, null);
+	public byte[] downloadAsByteArray(String pathname) {
+		return s3.getObject(GetObjectRequest.builder().bucket(this.bucketName).key(pathname).build(),
+	        	ResponseTransformer.toBytes()).asByteArray();
 	}
-	
-	public void copyObject(String filepath, String newFolderPath, String newName) throws Exception {
-		String encodedUrl = URLEncoder.encode(filepath, StandardCharsets.UTF_8.toString());
-		if( ! newFolderPath.endsWith("/")) {
-			newFolderPath = newFolderPath + "/";
-		}
 		
-		if(newName == null) {
-			String[] parts = filepath.split("/");
-			newName = parts[parts.length-1];
-		}
-
-		CopyObjectRequest copyReq = CopyObjectRequest.builder()
-				.copySource(encodedUrl)
-				.destinationBucket(bucketName)
-				.destinationKey(newFolderPath + newName)
-				.build();
-
-		System.out.println("Moving " + filepath + " to " + newFolderPath + newName);
-		CopyObjectResponse copyRes = s3.copyObject(copyReq);
-		System.out.println(copyRes.copyObjectResult().toString());
-		
-		deleteObject(filepath);
-	}
-	
 	public void deleteObject(String filepath) {
 		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(filepath).build();
 		s3.deleteObject(deleteObjectRequest);
 	}
 	
-	public void moveObject(String filename, String newFolderPath) throws Exception {
-		copyObject(filename, newFolderPath, null);
+	public String moveObject(String filepath, String newFolderPath) throws Exception {
+		return moveObject(filepath, newFolderPath, null);
 	}
 	
-	public void moveObject(String filename, String newFolderPath, String newName) throws Exception {
+	public String moveObject(String filepath, String newFolderPath, String newName) throws Exception {		
 		
-		moveObject(filename, newFolderPath, newName);
+		if( ! newFolderPath.endsWith("/")) {
+			newFolderPath = newFolderPath + "/";
+		}
+		if(newName == null) {
+			String[] parts = filepath.split("/");
+			newName = parts[parts.length-1];
+		}
+
+		String newFilePath = newFolderPath + newName;
+		System.out.println(String.format(
+				"Moving %s to %s",
+				filepath,
+				newFilePath));
 		
-		deleteObject(filename);
+		/**
+		 * NOTE: S3Client.copyObject(CopyObjectRequest) is problematic and results in a 403 (unauthorized) if the
+		 * object you are copying has both s3:GetObjectTagging and s3:PutObjectTagging permissions on it. Instead of trying
+		 * to add these permissions before copying, it's easier to download the file and then upload to the new location as
+		 * two separate steps (which the copyObject method probably does anyway).
+		 * SEE: https://medium.com/collaborne-engineering/s3-copyobject-access-denied-5f7a6fe0393e
+		 */
+		
+		// 1) download the file
+		byte[] bytes = downloadAsByteArray(filepath);
+		
+		// 2) upload the file to the new location
+		upload(newFilePath, bytes);
+		
+		// 3) delete the file from its original location
+		deleteObject(filepath);
+		
+		return newFilePath;
 	}
 	
 	public String getBucketName() {
@@ -291,5 +297,10 @@ public class S3Bucket {
     public static void main(String[] args) throws Exception {
     	S3Bucket bucket = parseArgs(args);
     	System.out.print(bucket);
+    	
+    	// Move some files from one folder to another.
+    	bucket.moveObject("jobs/completed/jobfile1", "jobs/inbox/");
+    	bucket.moveObject("jobs/completed/jobfile2", "jobs/inbox/");
+    	bucket.moveObject("jobs/completed/jobfile3", "jobs/inbox/");
     }
 }

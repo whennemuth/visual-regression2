@@ -42,7 +42,8 @@ public class S3BasketSystem extends BasketSystem {
 
 	public static void main(String[] args) throws Exception {    	
     	S3Bucket bucket = S3Bucket.parseArgs(args);    	
-    	S3BasketSystem bs = new S3BasketSystem(bucket);    	
+    	S3BasketSystem bs = new S3BasketSystem(bucket);
+    	bs.load();
     	System.out.println(bs);
     }
 }

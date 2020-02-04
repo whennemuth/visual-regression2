@@ -107,5 +107,15 @@ public abstract class BasketSystem {
 			}
 			return null;
 		}
+		public static String concatenatedList() {
+			StringBuilder s = new StringBuilder();
+			for(BasketType name: BasketType.values()) {
+				if(s.length() > 0) {
+					s.append(", ");
+				}
+				s.append(name);
+			}
+			return s.toString();
+		}
 	}
 }

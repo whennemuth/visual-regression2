@@ -17,7 +17,11 @@ public class VisRegJob {
 	public void process() {
 		System.out.println("Processing: " + basketItem.getPathname());
 		
+		String job = basketItem.getContent();
+		
 		basketItem.setFailed(false);
+		
+		
 	}
 
 }
