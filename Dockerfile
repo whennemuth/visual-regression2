@@ -12,7 +12,7 @@ RUN \
 
 WORKDIR /app
 
-COPY buildhelper.sh task.sh utils.sh ./
+COPY bash/buildhelper.sh bash/utils.sh ./
 
 SHELL ["/bin/bash", "-c"]
 
@@ -30,13 +30,15 @@ RUN \
 # Pull and build the node app
 RUN \
     source buildhelper.sh && \
-    doTask \
+    dotask \
       --task pull-node \
       --git-repo https://github.com/bu-ist/bu-webdiff.git \
       --git-user $git_user \
       --git-pswd $git_pswd && \
     cd webdiff && \
     npm install
+
+COPY bash/task.sh ./
 
 # COPY app/package*.json ./
 # RUN npm install

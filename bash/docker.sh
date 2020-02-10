@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source utils.sh
+source ./utils.sh
 
 defaultRegion="us-east-1"
 defaultImage="bu-visual-regression"
@@ -15,7 +15,7 @@ parseargs() {
   while (( "$#" )); do
     case "$1" in
       -t|--task)
-        eval "$(parsearg $1 $2 'imageName')" ;;
+        eval "$(parsearg $1 $2 'task')" ;;
       -i|--image-name)
         eval "$(parsearg $1 $2 'imageName')" ;;
       -k|--secret-access-key)
@@ -82,7 +82,6 @@ run() {
         -e AWS_ACCESS_KEY_ID="$accessKeyId" \
         -e AWS_SECRET_ACCESS_KEY="$secretAccessKey" \
         -e AWS_REGION="$region" \
-        --entrypoint="" \
         $imageName \
         java \
         -cp /app/basket/target/classes:/app/basket/target/dependency/* \
@@ -95,9 +94,9 @@ run() {
         -e AWS_ACCESS_KEY_ID="$accessKeyId" \
         -e AWS_SECRET_ACCESS_KEY="$secretAccessKey" \
         -e AWS_REGION="$region" \
-        --entrypoint="" \
         $imageName \
-        /bin/bash task.sh --task bucket-ls
+        bash task.sh --task bucket-ls
+        ;;
     *)
       if [ -z "$task" ] ; then
         echo "Task not specified!"

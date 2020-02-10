@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source utils.sh
+source ./utils.sh
 
 # Default values
 defaultMainClass="bu.ist.visreg.Processor"
@@ -25,12 +25,10 @@ parseargs() {
         eval "$(parsearg $1 $2 'task')" ;;
       -b|--bucket)
         eval "$(parsearg $1 $2 'bucket')" ;;
-      -f|--file-root
+      -f|--file-root)
         eval "$(parsearg $1 $2 'fileRoot')" ;;
       -m|--main-class)
         eval "$(parsearg $1 $2 'mainClass')" ;;
-      --test)
-        eval "$(parsearg $1 $2 'test')" ;;
       -h|--help)
         printusage
         exit 0
