@@ -28,8 +28,8 @@ public class Processor {
 			BasketSystem bs = null;
 			try {
 				bs = BasketSystem.getInstance(
-					BasketType.getValue(parser.getString("basket-type")),
-					parser.getString("root"));
+					BasketType.getValue(parser.getString("b|basket-type")),
+					parser.getString("r|root"));
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -40,7 +40,6 @@ public class Processor {
 		}
 		else {
 			System.err.println("Missing/Insufficient parameters!");
-			System.exit(1);
 		}
 		
 		return processor;
@@ -98,7 +97,8 @@ public class Processor {
 		Processor processor = parseargs(args);
 
 		if(processor == null) {		
-			printUsage();			
+			printUsage();
+			System.exit(1);
 		} 
 		else {			
 			processor.process(BasketEnum.INBOX);			

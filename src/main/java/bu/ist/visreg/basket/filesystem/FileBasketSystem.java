@@ -4,6 +4,7 @@ import java.io.File;
 
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.Basket.BasketEnum;
+import bu.ist.visreg.util.ArgumentParser;
 import bu.ist.visreg.basket.BasketSystem;
 
 public class FileBasketSystem extends BasketSystem {
@@ -34,5 +35,18 @@ public class FileBasketSystem extends BasketSystem {
 
 	public File getRootDirectory() {
 		return rootDirectory;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		ArgumentParser parser = new ArgumentParser(args);
+		
+		if(parser.has("r|root")) {
+			FileBasketSystem fbs = new FileBasketSystem(parser.getString("r|root"));
+			fbs.load();
+			System.out.println(fbs.toString());
+		}
+		else {
+			System.err.println("Missing parameter: \"-r|--root\"");
+		}
 	}
 }

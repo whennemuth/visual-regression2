@@ -1,9 +1,5 @@
 package bu.ist.visreg.basket.s3;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +7,10 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import bu.ist.visreg.util.ArgumentParser;
-import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
-import software.amazon.awssdk.services.s3.model.CopyObjectResponse;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -92,6 +85,7 @@ public class S3Bucket {
         }	    
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean bucketExists() {
         ListBucketsRequest listBucketsRequest = ListBucketsRequest.builder().build();
         ListBucketsResponse listBucketsResponse = s3.listBuckets(listBucketsRequest);        
@@ -280,12 +274,12 @@ public class S3Bucket {
     	boolean createIfNotExists = parser.getBoolean("c|create");
     	if(parser.has(new String[] { "r|region", "b|bucket"})) {
     		bucket = new S3Bucket(
-				parser.getString("bucket"),
-				getRegion(parser.getString("region")), 
+				parser.getString("b|bucket"),
+				getRegion(parser.getString("r|region")), 
 				createIfNotExists);    		
     	}
     	else if(parser.has("b|bucket")) {
-    		bucket  = new S3Bucket(parser.getString("bucket"), createIfNotExists);
+    		bucket  = new S3Bucket(parser.getString("b|bucket"), createIfNotExists);
     	}
     	else {
     		System.err.println("Expected 1 or 2 arguments!");
@@ -299,8 +293,8 @@ public class S3Bucket {
     	System.out.print(bucket);
     	
     	// Move some files from one folder to another.
-    	bucket.moveObject("jobs/completed/jobfile1", "jobs/inbox/");
-    	bucket.moveObject("jobs/completed/jobfile2", "jobs/inbox/");
-    	bucket.moveObject("jobs/completed/jobfile3", "jobs/inbox/");
+//    	bucket.moveObject("jobs/completed/jobfile1", "jobs/inbox/");
+//    	bucket.moveObject("jobs/completed/jobfile2", "jobs/inbox/");
+//    	bucket.moveObject("jobs/completed/jobfile3", "jobs/inbox/");
     }
 }

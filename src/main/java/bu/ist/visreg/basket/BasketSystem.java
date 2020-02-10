@@ -79,8 +79,6 @@ public abstract class BasketSystem {
 			return false;
 		return true;
 	}
-
-
 	
 	@Override
 	public String toString() {
