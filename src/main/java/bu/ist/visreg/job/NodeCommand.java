@@ -9,7 +9,17 @@ public class NodeCommand {
 	private String[] commandParts;
 	
 	public NodeCommand(String[] commandParts) {
-		this.commandParts = commandParts;
+		if(!commandParts[0].equals("node")) {
+			// Make sure "node" is the first part of the command.
+			this.commandParts = new String[commandParts.length+1];
+			this.commandParts[0] = "node";
+			for(int i=0; i<commandParts.length; i++) {
+				this.commandParts[i+1] = commandParts[i];
+			}
+		}
+		else {
+			this.commandParts = commandParts;			
+		}
 	}
 
 	public void run() throws Exception {		

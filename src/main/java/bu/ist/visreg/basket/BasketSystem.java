@@ -14,9 +14,9 @@ public abstract class BasketSystem {
 	protected List<Basket> baskets = new ArrayList<Basket>();
 	protected String rootLocation;
 	
-	public abstract void load() throws Exception;
+	public abstract void load(BasketItemSplitter splitter) throws Exception;
 	
-	public static BasketSystem getInstance(BasketType basketType, String rootLocation) throws Exception {
+	public static BasketSystem getInstance(BasketType basketType, String rootLocation, BasketItemSplitter splitter) throws Exception {
 		
 		BasketSystem bs = null;
 		switch(basketType) {
@@ -29,7 +29,7 @@ public abstract class BasketSystem {
 				break;
 		}
 				
-		bs.load();
+		bs.load(splitter);
 		
 		return bs;
 	}

@@ -1,7 +1,10 @@
 package bu.ist.visreg.basket.s3;
 
+import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket;
+import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.Basket.BasketEnum;
+import bu.ist.visreg.basket.BasketItemSplitter;
 import bu.ist.visreg.basket.BasketSystem;
 
 /**
@@ -22,7 +25,7 @@ public class S3BasketSystem extends BasketSystem {
 	}
 	
 	@Override
-	public void load() throws Exception {		
+	public void load(BasketItemSplitter splitter) throws Exception {		
 		
 		for(Basket.BasketEnum be : BasketEnum.values()) {
 			
@@ -30,7 +33,7 @@ public class S3BasketSystem extends BasketSystem {
 			
 			basket.createIfNotExists();
 			
-			basket.load();
+			basket.load(splitter);
 			
 			addBasket(basket);
 		}		
@@ -43,7 +46,11 @@ public class S3BasketSystem extends BasketSystem {
 	public static void main(String[] args) throws Exception {    	
     	S3Bucket bucket = S3Bucket.parseArgs(args);    	
     	S3BasketSystem bs = new S3BasketSystem(bucket);
-    	bs.load();
+    	bs.load(new BackstopSplitter() {
+			@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
+				return bi.getSplitItem(json, pathname);
+			}				
+		});
     	System.out.println(bs);
     }
 }

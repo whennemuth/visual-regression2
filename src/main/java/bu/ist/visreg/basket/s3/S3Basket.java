@@ -1,7 +1,11 @@
 package bu.ist.visreg.basket.s3;
 
+import java.util.List;
+import java.util.Map;
+
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
+import bu.ist.visreg.basket.BasketItemSplitter;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3Basket extends Basket {
@@ -28,14 +32,26 @@ public class S3Basket extends Basket {
 	}
 
 	@Override
-	public void load() {
-		bucket.getS3Objects().values().stream()
-			.filter(o -> this.contains(o))
-			.forEach(o -> {
+	public void load(BasketItemSplitter splitter) throws Exception {
+		Map<String, S3Object> map = bucket.getS3Objects();
+		for(S3Object o : map.values()) {
+			if(!this.contains(o)) {
 				String content = bucket.downloadAsString(o.key());
 				BasketItem bi = new S3BasketItem(this, o.key(), content);
-				addBasketItem(bi);
-			});
+				List<BasketItem> subitems = splitter.splitIntoPieces(bi);
+				if(subitems.isEmpty()) {
+					addBasketItem(bi);
+				}
+				else {
+					for(BasketItem subitem : subitems) {
+						subitem.persist();
+					}
+					bi.delete();
+					load(splitter);
+					break;
+				}
+			}
+		}
 	}
 
 	@Override

@@ -244,7 +244,7 @@ public class S3Bucket {
 	}
 
 	/**
-	 * Accomodate looser entries for the region and still be able to match up the entry to the corresponding Region enumerator.
+	 * Accommodate looser entries for the region and still be able to match up the entry to the corresponding Region enumerator.
 	 * Example: "us-east-1" can be used to match up to Region.US_EAST_1 
 	 * @param region
 	 * @return

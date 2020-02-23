@@ -1,5 +1,6 @@
 package bu.ist.visreg.job;
 
+import bu.ist.visreg.backstop.BackstopJson;
 import bu.ist.visreg.basket.BasketItem;
 
 public class VisRegJob {
@@ -11,17 +12,31 @@ public class VisRegJob {
 	}
 	
 	/**
-	 * TODO: Determine if basketItem content denotes a single visual regression parameter list or is many of them (one per line).
-	 * Then write code to process it/them.
+	 * @throws Exception 
 	 */
-	public void process() {
+	public void process() throws Exception {
 		System.out.println("Processing: " + basketItem.getPathname());
 		
-		String job = basketItem.getContent();
+		String json = basketItem.getContent();
 		
-		basketItem.setFailed(false);
+		JobDefinition def = JobDefinition.getInstance(json);
 		
+		NodeCommand cmd = null;
+		String[] cmdargs = null;
+		for(BackstopJson backstopJson : def.getBackstops()) {
+			
+			BackstopCommandArgs args = new BackstopCommandArgs(backstopJson);
+			
+			cmdargs = args.getCreateReferenceImagesArgs();
+			cmd = new NodeCommand(cmdargs);
+			cmd.run();
+			
+			cmdargs = args.getCreateTestImagesArgs();
+			cmd = new NodeCommand(cmdargs);
+			cmd.run();
+		}
 		
+		basketItem.setFailed(false);		
 	}
 
 }

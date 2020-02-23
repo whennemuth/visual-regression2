@@ -12,7 +12,7 @@ public abstract class Basket {
 
 	public abstract void createIfNotExists() throws Exception;
 	
-	public abstract void load() throws Exception;
+	public abstract void load(BasketItemSplitter splitter) throws Exception;
 	
 	public abstract String getIdentifier();
 

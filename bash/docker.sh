@@ -8,7 +8,7 @@ defaultMainClass="bu.ist.visreg.Processor"
 defaultBucket="wrh1-test-bucket"
 
 parseargs() {
-  echo "Parsing arguments..."
+  echo "Parsing arguments (docker.sh)..."
 
   local posargs=""
 

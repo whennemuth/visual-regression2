@@ -1,9 +1,12 @@
 package bu.ist.visreg.basket.filesystem;
 
 import java.io.File;
+import java.util.List;
 
+import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
+import bu.ist.visreg.basket.BasketItemSplitter;
 
 public class FileBasket extends Basket {
 	
@@ -39,10 +42,23 @@ public class FileBasket extends Basket {
 	}
 
 	@Override
-	public void load() {
+	public void load(BasketItemSplitter splitter) throws Exception {
 		for(File f : folder.listFiles()) {
 			BasketItem bi = new FileBasketItem(this, f.getAbsolutePath(), getFileContent(f));
-			addBasketItem(bi);
+			
+			List<BasketItem> subitems = splitter.splitIntoPieces(bi);
+
+			if(subitems.isEmpty()) {
+				addBasketItem(bi);
+			}
+			else {
+				for(BasketItem subitem : subitems) {
+					subitem.persist();
+				}
+				bi.delete();
+				load(splitter);
+				break;
+			}
 		}
 	}
 

@@ -17,4 +17,22 @@ public class S3BasketItem extends BasketItem {
 		super.pathname = bucket.moveObject(super.pathname, nextBasket.getIdentifier());
 	}
 
+	@Override
+	public boolean persist() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean delete() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public BasketItem getSplitItem(String json, String pathname) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

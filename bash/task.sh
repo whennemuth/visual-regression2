@@ -11,7 +11,7 @@ defaultFileRoot="/opt/visual-regression/baskets"
 classpath="/app/basket/target/classes:/app/basket/target/dependency/*"
 
 parseargs() {
-  echo "Parsing arguments..."
+  echo "Parsing arguments (task.sh)..."
 
   # Blank out prior settings.
   posargs=()
@@ -90,7 +90,7 @@ dotask() {
     run-java-fs)
       java -cp $classpath $mainClass --basket-type filesystem --root $fileRoot ;;
     bucket-ls)
-      java -cp $classpath bu.ist.visreg.basket.s3.S3Bucket $bucket ;;
+      java -cp $classpath bu.ist.visreg.basket.s3.S3Bucket --bucket $bucket ;;
     *)
       if [ -z "$task" ] ; then
         echo "Task not specified!"
@@ -102,3 +102,6 @@ dotask() {
   esac
 }
 
+echo "dotask $@"
+
+dotask $@

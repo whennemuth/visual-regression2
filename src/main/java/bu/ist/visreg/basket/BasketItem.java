@@ -1,5 +1,8 @@
 package bu.ist.visreg.basket;
 
+import java.util.List;
+
+import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket.BasketEnum;
 
 public abstract class BasketItem {
@@ -37,6 +40,16 @@ public abstract class BasketItem {
 		return basket.getEnum().equals(BasketEnum.IN_PROCESS);
 	}
 	
+	public boolean inInboxBasket() {
+		return basket.getEnum().equals(BasketEnum.INBOX);
+	}
+	
+	/**
+	 * A Basket item undergoes a process or "journey" through a series of baskets.
+	 * It moves from one basket to the next. This function moves a basket item from its current basket into the next.
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean gotoNextBasket() throws Exception {
 		Basket nextBasket = basket.getNextBasket(this);
 		if(nextBasket != null && ! nextBasket.equals(basket)) {			
@@ -58,7 +71,7 @@ public abstract class BasketItem {
 		}
 		return false;
 	}
-	
+		
 	/**
 	 * The basket system has been updated to reflect items moving between baskets at this point, 
 	 * but it is just a representation of the real thing, an underlying storage system (ie: files, 
@@ -66,6 +79,11 @@ public abstract class BasketItem {
 	 */	
 	public abstract void commitBasketMove(Basket nextBasket) throws Exception;
 	
+	public abstract BasketItem getSplitItem(String json, String pathname);
+	
+	public abstract boolean persist() throws Exception;
+	
+	public abstract boolean delete();
 	
 	@Override
 	public int hashCode() {
@@ -106,6 +124,5 @@ public abstract class BasketItem {
 	public String toString() {
 		return "BasketItem [pathname=" + pathname + ", failed=" + failed + "]";
 	}
-	
 	
 }
