@@ -1,9 +1,7 @@
 package bu.ist.visreg.backstop;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +10,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
+import bu.ist.visreg.job.JobDefinition;
 import bu.ist.visreg.util.JsonUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -146,7 +147,18 @@ public class BackstopJson {
 	@JsonIgnore
 	public String toJson() throws JsonProcessingException {
 		return JsonUtils.toJson(this);
-	}	
+	}
+	
+	public static BackstopJson getInstance(String json) throws JsonMappingException, JsonProcessingException {
+		BackstopJson backstopJson = null;
+		if(json != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+			backstopJson = mapper.readValue(json, JobDefinition.class);
+		}
+		return backstopJson;
+	}
+	
 	public static BackstopJson getDefaultInstance() {
 		BackstopJson bj = new BackstopJson();
 		bj.setId("backstop_default_id_" + String.valueOf(System.currentTimeMillis()));

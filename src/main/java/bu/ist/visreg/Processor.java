@@ -7,7 +7,6 @@ import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.Basket.BasketEnum;
 import bu.ist.visreg.basket.BasketItem;
-import bu.ist.visreg.basket.BasketItemSplitter;
 import bu.ist.visreg.basket.BasketSystem;
 import bu.ist.visreg.basket.BasketSystem.BasketType;
 import bu.ist.visreg.job.VisRegJob;
@@ -28,16 +27,15 @@ public class Processor {
 		
 		if(parser.has("b|basket-type", "r|root")) {
 			BasketSystem bs = null;
-			BasketItemSplitter splitter = new BackstopSplitter() {
-				@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
-					return bi.getSplitItem(json, pathname);
-				}				
-			};
 			try {
 				bs = BasketSystem.getInstance(
 					BasketType.getValue(parser.getString("b|basket-type")),
 					parser.getString("r|root"),
-					splitter);
+					new BackstopSplitter() {
+						@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
+							return bi.getSplitItem(json, pathname);
+						}				
+					});
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

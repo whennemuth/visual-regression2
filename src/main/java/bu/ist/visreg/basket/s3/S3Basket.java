@@ -45,9 +45,9 @@ public class S3Basket extends Basket {
 				else {
 					for(BasketItem subitem : subitems) {
 						subitem.persist();
+						addBasketItem(subitem);
 					}
 					bi.delete();
-					load(splitter);
 					break;
 				}
 			}

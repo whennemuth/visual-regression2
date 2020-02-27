@@ -21,14 +21,14 @@ public abstract class BackstopSplitter implements BasketItemSplitter {
 			// Replace the content of the JobDefinition file with what it should be after converted to a single backtopJson file.
 			String json = backstops.get(0).toJson();
 			BasketItem item = pieceToBasketItem(unsplitItem, json, unsplitItem.getPathname());
-			item.persist();
+			// item.persist();
 			basketItems.add(item);
 		}
 		else {
 			// Break the JobDefinition into a collection of backstopJson files (one for each scenario).
 			for(BackstopJson bs : backstops) {
 				BasketItem item = pieceToBasketItem(unsplitItem, bs.toJson(), bs.getId());
-				item.persist();
+				// item.persist();
 				basketItems.add(item);
 			}
 		}

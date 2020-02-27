@@ -45,8 +45,8 @@ public class FileBasketSystem extends BasketSystem {
 		if(parser.has("r|root")) {
 			FileBasketSystem fbs = new FileBasketSystem(parser.getString("r|root"));
 			fbs.load(new BackstopSplitter() {
-				@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
-					return bi.getSplitItem(json, pathname);
+				@Override public BasketItem pieceToBasketItem(BasketItem unsplitBasketItem, String json, String pathname) {
+					return unsplitBasketItem.getSplitItem(json, pathname);
 				}				
 			});
 			System.out.println(fbs.toString());

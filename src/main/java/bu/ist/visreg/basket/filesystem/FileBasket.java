@@ -3,14 +3,14 @@ package bu.ist.visreg.basket.filesystem;
 import java.io.File;
 import java.util.List;
 
-import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.BasketItemSplitter;
+import bu.ist.visreg.util.FileUtils;
 
 public class FileBasket extends Basket {
 	
-	private File folder;
+	private FileUtils folder;
 	
 	public FileBasket(BasketEnum basketEnum, FileBasketSystem parent) {
 		super.basketEnum = basketEnum;
@@ -20,12 +20,17 @@ public class FileBasket extends Basket {
 	@Override
 	public void createIfNotExists() throws Exception {
 		
-		this.folder = new File(
-				((FileBasketSystem) parent).getRootDirectory(), 
-				basketEnum.getBasketRelativeLocation());
-		
-		if(!folder.isDirectory()) {
+		if(folder == null || !folder.isDirectory()) {
 			System.out.println("Creating folder: " + folder.getAbsolutePath());
+			
+			if(folder == null) {
+				folder = new FileUtils();
+			}
+			
+			folder.setFile(new File(
+					((FileBasketSystem) parent).getRootDirectory(), 
+					basketEnum.getBasketRelativeLocation()));
+			
 			if(!folder.mkdirs()) {
 				throw new RuntimeException(String.format(
 						"ERROR! Cannot create: %s", 
@@ -38,7 +43,10 @@ public class FileBasket extends Basket {
 	}
 	
 	public File getFolder() {
-		return folder;
+		return folder.getFile();
+	}
+	public void setFolder(FileUtils folder) {
+		this.folder = folder;
 	}
 
 	@Override
@@ -54,9 +62,9 @@ public class FileBasket extends Basket {
 			else {
 				for(BasketItem subitem : subitems) {
 					subitem.persist();
+					addBasketItem(subitem);
 				}
 				bi.delete();
-				load(splitter);
 				break;
 			}
 		}
@@ -68,7 +76,6 @@ public class FileBasket extends Basket {
 	}
 	
 	private String getFileContent(File f) {
-		return null;
+		return folder.newInstance(f).readFile();
 	}
-
 }

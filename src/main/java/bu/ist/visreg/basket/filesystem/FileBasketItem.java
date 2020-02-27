@@ -1,38 +1,38 @@
 package bu.ist.visreg.basket.filesystem;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
+import bu.ist.visreg.util.FileUtils;
 
 public class FileBasketItem extends BasketItem {
 	
+	private FileUtils file;
+	
 	public FileBasketItem(Basket basket, String pathname, String content) {
 		super(basket, pathname, content);
+		file = new FileUtils(pathname);
 	}
 
 	@Override
 	public void commitBasketMove(Basket nextBasket) throws Exception {
 		
-		File f = new File(pathname);
-		if(f.isFile()) {
+		if(file.isFile()) {
 			File targetFolder = ((FileBasket) nextBasket).getFolder();
-			File targetFile = new File(targetFolder.getAbsolutePath() + "\\" + f.getName());
-			boolean commited = f.renameTo(targetFile);
+			File targetFile = new File(targetFolder.getAbsolutePath() + "\\" + file.getName());
+			boolean commited = file.renameTo(targetFile);
 			if(!commited) {
 				throw new RuntimeException(String.format(
 						"ERROR! Failed to move %s to %s",
-						f.getAbsolutePath(),
+						file.getAbsolutePath(),
 						targetFolder));
 			}
 			else {
 				this.pathname = targetFile.getAbsolutePath();
 				System.out.println(String.format(
 						"Moved %s to %s",
-						f.getAbsolutePath(),
+						file.getAbsolutePath(),
 						targetFolder));
 			}
 		}
@@ -47,8 +47,9 @@ public class FileBasketItem extends BasketItem {
 		else {
 			// The id designates a portion of a new pathname to be based on the existing one.
 			// Build the new pathname and return a corresponding basket item with json as the content.
-			File directory = new File(pathname).getParentFile();
-			String basename = new File(pathname).getName();			
+			FileUtils origFile = new FileUtils(pathname);
+			File directory = origFile.getParentFile();
+			String basename = origFile.getName();			
 			String filename = basename + "_" + id;
 			File f = new File(directory, filename);
 			return new FileBasketItem(basket, f.getAbsolutePath(), json);
@@ -56,21 +57,17 @@ public class FileBasketItem extends BasketItem {
 	}
 
 	@Override
-	public boolean persist() throws Exception {
-		StandardOpenOption opt = new File(pathname).exists() ? 
-			StandardOpenOption.TRUNCATE_EXISTING : 
-			StandardOpenOption.CREATE_NEW;		
-		Files.write(Paths.get(pathname), getContent().getBytes(), opt);
-		return new File(pathname).isFile();
+	public boolean persist() throws Exception {		
+		return new FileUtils(new File(pathname)).writeFile(getContent());
 	}
 
 	@Override
 	public boolean delete() {
-		return new File(pathname).delete();
+		return new FileUtils(new File(pathname)).delete();
+	}
+
+	public void setFile(FileUtils file) {
+		this.file = file;
 	}
 	
-	
-	public static void main(String[] args) {
-		// RESUME NEXT: Write something here to test split()
-	}
 }

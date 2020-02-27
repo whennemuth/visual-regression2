@@ -1,8 +1,5 @@
 package bu.ist.visreg.basket;
 
-import java.util.List;
-
-import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.basket.Basket.BasketEnum;
 
 public abstract class BasketItem {
