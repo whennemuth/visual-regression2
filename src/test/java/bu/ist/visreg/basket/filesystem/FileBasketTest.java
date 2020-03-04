@@ -15,18 +15,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import bu.ist.visreg.BackstopSplitterMocker;
 import bu.ist.visreg.backstop.BackstopJson;
-import bu.ist.visreg.backstop.BackstopSplitter;
 import bu.ist.visreg.backstop.Scenario;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.util.FileUtils;
 import bu.ist.visreg.util.TestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class FileBasketTest {
 
 	@Mock private File rootDirectory;
@@ -60,33 +59,16 @@ public class FileBasketTest {
 	@Test
 	public void testLoad() {
 		when(backstopJson1.isFile()).thenReturn(true);
-		when(backstopJson1.getAbsolutePath()).thenReturn("/backstopJson1.json");
+		when(backstopJson1.getAbsolutePath()).thenReturn("/JobDefinitionThreeScenarios.json");
 		when(basketFolder.listFiles()).thenReturn(
 			new File[] { backstopJson1 }
 		);
-		String backstopJsonString = TestUtils.getClassPathResourceContent("job-definitions/JobDefinition1.json");
+		String backstopJsonString = TestUtils.getClassPathResourceContent("job-definitions/JobDefinitionThreeScenarios.json");
 		when(basktopJson1Utils.readFile()).thenReturn(backstopJsonString);
 		when(basketFolder.newInstance(same(backstopJson1))).thenReturn(basktopJson1Utils);
 		
 		try {
-			fb.load(new BackstopSplitter() {
-				@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
-					BasketItem splitItem = bi.getSplitItem(json, pathname);
-					BasketItem splitItemMock = Mockito.mock(BasketItem.class);
-					when(splitItemMock.getContent()).thenReturn(splitItem.getContent());
-					when(splitItemMock.getPathname()).thenReturn(splitItem.getPathname());
-					when(splitItemMock.getBasket()).thenReturn(splitItem.getBasket());
-					when(splitItemMock.delete()).thenReturn(true);
-					try {
-						when(splitItemMock.persist()).thenReturn(true);
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-					}
-					return splitItemMock;
-				}				
-			});
-			
+			fb.load(BackstopSplitterMocker.getInstance());			
 			List<BasketItem> items = fb.getBasketItems();
 			assertEquals(3, items.size());
 			
@@ -110,7 +92,7 @@ public class FileBasketTest {
 				assertNotNull(bj.getScenarios());
 				assertEquals(1, bj.getScenarios().size());
 				Scenario scenario = bj.getScenarios().get(0);
-				assertEquals("label"+String.valueOf(counter), scenario.getLabel());
+				assertEquals("scenario.label"+String.valueOf(counter), scenario.getLabel());
 				assertEquals("backstop_data/engine_scripts/cookies.json", scenario.getCookiePath());
 				switch(counter) {
 				case 1:

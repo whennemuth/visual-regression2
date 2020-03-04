@@ -1,5 +1,8 @@
 package bu.ist.visreg.basket.s3;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
 
@@ -19,20 +22,41 @@ public class S3BasketItem extends BasketItem {
 
 	@Override
 	public boolean persist() throws Exception {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			bucket.uploadFileFromString(getPathname(), getContent());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public boolean delete() {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			bucket.deleteObject(pathname);
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	@Override
-	public BasketItem getSplitItem(String json, String pathname) {
-		// TODO Auto-generated method stub
-		return null;
+	public BasketItem getSplitItem(String json, String id) {
+		if(id.equals(pathname)) {
+			// The id IS the existing pathname. So, just change the content of this basket item to json and return it.
+			return new S3BasketItem(basket, pathname, json);
+		}
+		else {
+			// The id designates a portion of a new pathname to be based on the existing one.
+			// Build the new pathname and return a corresponding basket item with json as the content.
+			String newPathName = getExtendedPathname(id);
+			S3BasketItem item = new S3BasketItem(basket, newPathName, json);
+			return item;
+		}
 	}
 
 }

@@ -47,12 +47,8 @@ public class FileBasketItem extends BasketItem {
 		else {
 			// The id designates a portion of a new pathname to be based on the existing one.
 			// Build the new pathname and return a corresponding basket item with json as the content.
-			FileUtils origFile = new FileUtils(pathname);
-			File directory = origFile.getParentFile();
-			String basename = origFile.getName();			
-			String filename = basename + "_" + id;
-			File f = new File(directory, filename);
-			return new FileBasketItem(basket, f.getAbsolutePath(), json);
+			String newPathName = getExtendedPathname(id);
+			return new FileBasketItem(basket, newPathName, json);
 		}		
 	}
 

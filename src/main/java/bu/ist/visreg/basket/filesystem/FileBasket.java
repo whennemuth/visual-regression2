@@ -64,7 +64,10 @@ public class FileBasket extends Basket {
 					subitem.persist();
 					addBasketItem(subitem);
 				}
-				bi.delete();
+				if(subitems.size() > 1) {
+					System.out.println("Deleting: " + bi.getPathname());
+					bi.delete();
+				}
 				break;
 			}
 		}

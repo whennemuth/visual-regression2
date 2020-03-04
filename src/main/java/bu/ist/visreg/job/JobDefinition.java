@@ -58,10 +58,7 @@ public class JobDefinition extends BackstopJson {
 	public List<BackstopJson> getBackstops() throws Exception {
 		ArrayList<BackstopJson> backstops = new ArrayList<BackstopJson>();
 		for(Scenario scenario1 : getScenarios()) {
-			/**
-			 * RESUME NEXT:
-			 * 2) Then process backstops in VisRegJob.process(). NOTE: How to get the docker container to operate once for each backstop in backstops? (The container is already running)
-			 */
+
 			ObjectMapper objectMapper = new ObjectMapper();
 			
 			// 1) Merge this instance with the default instance of BackstopJson (non-null values of this instance prevail over default values);

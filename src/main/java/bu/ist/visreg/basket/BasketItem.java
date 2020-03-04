@@ -1,5 +1,8 @@
 package bu.ist.visreg.basket;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import bu.ist.visreg.basket.Basket.BasketEnum;
 
 public abstract class BasketItem {
@@ -8,6 +11,7 @@ public abstract class BasketItem {
 	protected Basket basket;
 	protected String pathname;
 	protected String content;
+	protected Pattern extensionPattern = Pattern.compile("\\.[^\\.]+$");
 	
 	public BasketItem(Basket basket, String pathname, String content) {
 		this.basket = basket;
@@ -39,6 +43,22 @@ public abstract class BasketItem {
 	
 	public boolean inInboxBasket() {
 		return basket.getEnum().equals(BasketEnum.INBOX);
+	}
+	
+	protected String getExtendedPathname(String id) {
+		String newPathName = null;
+		Matcher m = extensionPattern.matcher(pathname);
+		if(m.find()) {
+			String fileExtension = m.toMatchResult().group();
+			if(fileExtension != null && !fileExtension.isEmpty()) {
+				String basename = pathname.substring(0, pathname.length()-fileExtension.length());
+				newPathName = basename + "_" + id + fileExtension;
+			}
+		}
+		else {
+			newPathName = pathname + "_" + id;
+		}
+		return newPathName;
 	}
 	
 	/**

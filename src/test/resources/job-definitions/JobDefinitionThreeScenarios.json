@@ -2,18 +2,18 @@
   "id" : "MyJob",
   "scenarios" : [
     {
-      "label" : "label1",
+      "label" : "scenario.label1",
       "url" : "https://ref-domain.bu.edu/main-test.htm",
       "referenceUrl" : "https://ref-domain.bu.edu/main.htm",
       "loginUrl" : "https://ref-domain.bu.edu/login.htm"
     },
     {
-      "label" : "label2",
+      "label" : "scenario.label2",
       "url" : "https://ref-domain.bu.edu/some/other/page-test.htm",
       "referenceUrl" : "https://ref-domain.bu.edu/some/other/page.htm"
     },
     {
-      "label" : "label3",
+      "label" : "scenario.label3",
       "url" : "https://ref-domain.bu.edu/another/web/page-test.htm",
       "referenceUrl" : "https://ref-domain.bu.edu/another/web/page.htm"
     }

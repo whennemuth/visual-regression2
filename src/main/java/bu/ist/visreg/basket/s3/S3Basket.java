@@ -17,7 +17,7 @@ public class S3Basket extends Basket {
 	public S3Basket(BasketEnum basketEnum, S3BasketSystem parent) {
 		super.basketEnum = basketEnum;
 		super.parent = parent;
-		this.bucket = ((S3BasketSystem) parent).getBucket();
+		this.bucket = parent.getBucket();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class S3Basket extends Basket {
 	public void load(BasketItemSplitter splitter) throws Exception {
 		Map<String, S3Object> map = bucket.getS3Objects();
 		for(S3Object o : map.values()) {
-			if(!this.contains(o)) {
+			if(this.contains(o)) {
 				String content = bucket.downloadAsString(o.key());
 				BasketItem bi = new S3BasketItem(this, o.key(), content);
 				List<BasketItem> subitems = splitter.splitIntoPieces(bi);
@@ -47,7 +47,10 @@ public class S3Basket extends Basket {
 						subitem.persist();
 						addBasketItem(subitem);
 					}
-					bi.delete();
+					if(subitems.size() > 1) {
+						System.out.println("Deleting: " + bi.getPathname());
+						bi.delete();
+					}
 					break;
 				}
 			}

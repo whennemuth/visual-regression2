@@ -7,6 +7,15 @@ import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.BasketItemSplitter;
 import bu.ist.visreg.job.JobDefinition;
 
+/**
+ * A JobDefinition will contain multiple scenarios. It is close to a BackstopJson instance.
+ * The JobDefinition can be converted into a BackstopJson instance, itself having those multiple scenarios.
+ * If you want just one scenario per BackstopJson instance, one for each of the collection, then a class that 
+ * "splits" up the collection of scenarios so multiple BackstopJson instances can be built is required.
+ *   
+ * @author wrh
+ *
+ */
 public abstract class BackstopSplitter implements BasketItemSplitter {
 
 	@Override
@@ -27,7 +36,8 @@ public abstract class BackstopSplitter implements BasketItemSplitter {
 		else {
 			// Break the JobDefinition into a collection of backstopJson files (one for each scenario).
 			for(BackstopJson bs : backstops) {
-				BasketItem item = pieceToBasketItem(unsplitItem, bs.toJson(), bs.getId());
+				String newId = bs.getId() + "_" + bs.scenarios.get(0).getLabel();
+				BasketItem item = pieceToBasketItem(unsplitItem, bs.toJson(), newId);
 				// item.persist();
 				basketItems.add(item);
 			}
