@@ -63,7 +63,7 @@ public class FileBasketTest {
 		when(basketFolder.listFiles()).thenReturn(
 			new File[] { backstopJson1 }
 		);
-		String backstopJsonString = TestUtils.getClassPathResourceContent("job-definitions/JobDefinitionThreeScenarios.json");
+		String backstopJsonString = FileUtils.getClassPathResourceContent("job-definitions/JobDefinitionThreeScenarios.json");
 		when(basktopJson1Utils.readFile()).thenReturn(backstopJsonString);
 		when(basketFolder.newInstance(same(backstopJson1))).thenReturn(basktopJson1Utils);
 		

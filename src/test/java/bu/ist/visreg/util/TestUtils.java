@@ -1,11 +1,6 @@
 package bu.ist.visreg.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -68,52 +63,6 @@ public class TestUtils {
 		return f;
     }
 	
-	/**
-	 * Get the content of a file as a string.
-	 * @param in
-	 * @return
-	 */
-	public static String getStringFromInputStream(InputStream in) {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new InputStreamReader(in));			
-			String inputLine;
-			StringWriter sb = new StringWriter();
-			PrintWriter pw = new PrintWriter(new BufferedWriter(sb));
-			while ((inputLine = br.readLine()) != null) {
-				pw.println(inputLine);
-			}
-			pw.flush();
-			return sb.toString();
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		finally {
-			if(br != null) {
-				try {
-					br.close();
-				} 
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}		
-	}
-	
-	public static String getClassPathResourceContent(String resource) {
-		InputStream in = TestUtils.class.getClassLoader().getResourceAsStream(resource);
-		return getStringFromInputStream(in);
-	}
-	
-	public static File getClassPathResource(String resource) {
-		URL url = TestUtils.class.getClassLoader().getResource(resource);
-		if(url == null) {
-			return null;
-		}
-		return new File(url.getFile());
-	}
 	
 	public static boolean trimIgnoreCaseEqual(String s1, String s2) {
 		if(s1 == null || s2 == null)
