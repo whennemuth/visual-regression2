@@ -37,6 +37,8 @@ public class BackstopJson {
 	@JsonMerge Scenario defaultScenario;
 	@JsonMerge List<Scenario> scenarios;
 	
+	List<String> invalidMessages;
+	
 	public String getId() {
 		return id;
 	}
@@ -147,6 +149,37 @@ public class BackstopJson {
 	@JsonIgnore
 	public String toJson() throws JsonProcessingException {
 		return JsonUtils.toJson(this);
+	}
+	@JsonIgnore
+	public boolean isValid() {
+		if(invalidMessages == null) {
+			getInvalidMessages();
+			return isValid();
+		}
+		return invalidMessages.isEmpty();
+	}
+	@JsonIgnore
+	public List<String> getInvalidMessages() {
+		if(invalidMessages != null) {
+			return invalidMessages;
+		}
+		invalidMessages = new ArrayList<String>();
+		String id = this.id == null ? "[jobdef]" : this.id;
+		if(viewports != null) {
+			for(ViewPort viewport : this.viewports) {
+				for(String msg : viewport.getInvalidMessages()) {
+					invalidMessages.add(id + "." + msg);
+				}
+			}
+		}
+		if(this.scenarios != null) {
+			for(Scenario scenario : this.scenarios) {
+				for(String msg : scenario.getInvalidMessages()) {
+					invalidMessages.add(id + "." + msg);
+				}
+			}
+		}		
+		return invalidMessages;
 	}
 	
 	public static BackstopJson getInstance(String json) throws JsonMappingException, JsonProcessingException {

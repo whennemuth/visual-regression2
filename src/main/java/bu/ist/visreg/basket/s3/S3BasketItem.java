@@ -1,8 +1,5 @@
 package bu.ist.visreg.basket.s3;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.BasketItem;
 

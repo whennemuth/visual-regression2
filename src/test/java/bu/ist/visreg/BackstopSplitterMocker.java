@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import bu.ist.visreg.backstop.BackstopSplitter;
+import bu.ist.visreg.backstop.AbstractBackstopSplitter;
 import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.BasketItemSplitter;
 
@@ -20,7 +20,7 @@ import bu.ist.visreg.basket.BasketItemSplitter;
 public class BackstopSplitterMocker {
 
 	public static BasketItemSplitter getInstance() {
-		return new BackstopSplitter() {
+		return new AbstractBackstopSplitter() {
 			@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
 				BasketItem splitItem = bi.getSplitItem(json, pathname);
 				BasketItem splitItemMock = Mockito.mock(BasketItem.class);

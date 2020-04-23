@@ -3,6 +3,13 @@ package bu.ist.visreg.job;
 import bu.ist.visreg.backstop.BackstopJson;
 import bu.ist.visreg.basket.BasketItem;
 
+/**
+ * A visual regression job is the processing of a single job definition, 
+ * defined by json that slightly extends standard backtopJs json.
+ * 
+ * @author wrh
+ *
+ */
 public class VisRegJob {
 
 	private BasketItem basketItem;

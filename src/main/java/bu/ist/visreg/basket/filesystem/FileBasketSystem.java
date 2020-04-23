@@ -2,10 +2,9 @@ package bu.ist.visreg.basket.filesystem;
 
 import java.io.File;
 
-import bu.ist.visreg.backstop.BackstopSplitter;
+import bu.ist.visreg.backstop.BasicBackstopSplitter;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.Basket.BasketEnum;
-import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.BasketItemSplitter;
 import bu.ist.visreg.basket.BasketSystem;
 import bu.ist.visreg.util.ArgumentParser;
@@ -44,11 +43,7 @@ public class FileBasketSystem extends BasketSystem {
 		ArgumentParser parser = new ArgumentParser(args);
 		if(parser.has("r|root")) {
 			FileBasketSystem fbs = new FileBasketSystem(parser.getString("r|root"));
-			fbs.load(new BackstopSplitter() {
-				@Override public BasketItem pieceToBasketItem(BasketItem unsplitBasketItem, String json, String pathname) {
-					return unsplitBasketItem.getSplitItem(json, pathname);
-				}				
-			});
+			fbs.load(new BasicBackstopSplitter());
 			System.out.println(fbs.toString());
 		}
 		else {

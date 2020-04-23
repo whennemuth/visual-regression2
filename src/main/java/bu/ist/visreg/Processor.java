@@ -3,7 +3,7 @@ package bu.ist.visreg;
 import java.util.ArrayList;
 import java.util.List;
 
-import bu.ist.visreg.backstop.BackstopSplitter;
+import bu.ist.visreg.backstop.BasicBackstopSplitter;
 import bu.ist.visreg.basket.Basket;
 import bu.ist.visreg.basket.Basket.BasketEnum;
 import bu.ist.visreg.basket.BasketItem;
@@ -20,6 +20,12 @@ public class Processor {
 		this.basketSystem = basketSystem;
 	}
 
+	/**
+	 * Parse arguments to make sure they are correct. If so, load the basket system of the indicated type and root location.
+	 * 
+	 * @param args
+	 * @return
+	 */
 	private static Processor parseargs(String[] args) {
 		
 		Processor processor = null;
@@ -31,11 +37,7 @@ public class Processor {
 				bs = BasketSystem.getInstance(
 					BasketType.getValue(parser.getString("b|basket-type")),
 					parser.getString("r|root"),
-					new BackstopSplitter() {
-						@Override public BasketItem pieceToBasketItem(BasketItem bi, String json, String pathname) {
-							return bi.getSplitItem(json, pathname);
-						}				
-					});
+					new BasicBackstopSplitter());
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -64,6 +66,13 @@ public class Processor {
 				+ "  --basket-type " + BasketType.S3.name() + " --root my-bucket\n");
 	}
 
+	/**
+	 * Process the load basket system by starting with the first basket (inbox) and moving each item from basket to 
+	 * basket, performing the actions indicated by the basket along the way.
+	 * A basket item is moved this way through all baskets before taking up the next basket item in the inbox.
+	 * 
+	 * @param basketType
+	 */
 	public void process(BasketEnum basketType) {
 		if(basketSystem == null) {
 			System.err.println("No basket system. Exiting...");

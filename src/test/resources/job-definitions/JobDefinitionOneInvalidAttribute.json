@@ -1,5 +1,9 @@
 {
   "id" : "MyJob",
+  "engine" : "selenium",
+  "viewports" : [{
+     "width" : 60
+  }],
   "scenarios" : [
     {
       "label" : "label1",
@@ -14,4 +18,3 @@
     "loginUrl" : "https://login/url/inherited/from/JobDefinition/login.htm"
   }
 }
-

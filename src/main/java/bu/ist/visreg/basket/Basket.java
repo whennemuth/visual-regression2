@@ -1,5 +1,6 @@
 package bu.ist.visreg.basket;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +10,7 @@ public abstract class Basket {
 	protected BasketSystem parent;
 	protected BasketEnum basketEnum;
 	protected List<BasketItem> basketItems = new LinkedList<BasketItem>();
+	protected int rejectedBasketItems;
 
 	public abstract void createIfNotExists() throws Exception;
 	
@@ -34,6 +36,44 @@ public abstract class Basket {
 
 	public void removeBasketItem(BasketItem basketItem) {
 		basketItems.remove(basketItem);
+	}
+
+	public boolean isInbox() {
+		return BasketEnum.INBOX.equals(getEnum());
+	}
+	
+	public BasketSystem getBasketSystem() {
+		return parent;
+	}
+
+	public int getRejectedBasketItems() {
+		return rejectedBasketItems;
+	}
+	
+	protected void rejectBasketItem(BasketItem basketItem) throws Exception {
+		basketItem.gotoErrorBasket();
+		rejectedBasketItems++;
+	}
+	
+	protected void loadOneBasketItem(BasketItem bi, BasketItemSplitter splitter) throws Exception {
+		List<BasketItem> subitems = new ArrayList<BasketItem>();
+		if(isInbox()) {
+			subitems.addAll(splitter.splitIntoPieces(bi));
+		}
+		
+		if(bi.isValid()) {
+			for(BasketItem subitem : subitems) {
+				subitem.persist();
+				addBasketItem(subitem);
+			}
+			if(subitems.size() > 1) {
+				System.out.println("Deleting: " + bi.getPathname());
+				bi.delete();
+			}
+		}
+		else {
+			rejectBasketItem(bi);
+		}
 	}
 	
 	@Override
@@ -101,6 +141,9 @@ public abstract class Basket {
 		}
 		public BasketEnum getNextBasket(BasketItem item) {
 			if(item.failed()) {
+				return ERROR;
+			}
+			if( ! item.isValid()) {
 				return ERROR;
 			}
 			switch(this) {

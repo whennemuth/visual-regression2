@@ -18,6 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import bu.ist.visreg.BackstopSplitterMocker;
+import bu.ist.visreg.backstop.EngineOptions;
+import bu.ist.visreg.backstop.Paths;
+import bu.ist.visreg.backstop.Scenario;
+import bu.ist.visreg.backstop.ViewPort;
 import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.Basket.BasketEnum;
 import bu.ist.visreg.util.FileUtils;
@@ -114,8 +118,9 @@ public class S3BasketTest {
 		try {
 			sb.createIfNotExists();
 			
-			String objectKey = inbox.getBasketRelativeLocation() + "JobDefinitionOneScenario.json";
-			String jobdef = FileUtils.getClassPathResourceContent("job-definitions/JobDefinitionOneScenario.json");			
+			final String jsonFileName = "JobDefinitionOneScenario.json";
+			String objectKey = inbox.getBasketRelativeLocation() + jsonFileName;
+			String jobdef = FileUtils.getClassPathResourceContent("job-definitions/" + jsonFileName);			
 			Map<String, S3Object> folderItems = new HashMap<String, S3Object>();
 			
 			when(folderItemMock.key()).thenReturn(objectKey);
@@ -144,8 +149,6 @@ public class S3BasketTest {
 			fail("Not expecting exception");
 		}
 	}
-
-	
 	
 	
 }

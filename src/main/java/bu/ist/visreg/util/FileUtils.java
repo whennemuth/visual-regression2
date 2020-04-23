@@ -40,7 +40,7 @@ public class FileUtils {
 		if(f.isFile()) {
 			try {
 				byte[] bytes = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
-				return bytes.toString();
+				return new String(bytes);				
 			} 
 			catch (IOException e) {
 				e.printStackTrace();

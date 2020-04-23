@@ -1,5 +1,10 @@
 package bu.ist.visreg.backstop;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonMerge;
@@ -34,6 +39,8 @@ public class Scenario {
 	@JsonMerge ViewPort[] viewports; // An array of screen size objects your DOM will be tested against. This configuration will override the viewports property assigned at the config root.
 	
 	String loginUrl;                 // Not a field from BackstopJs itself. Adding it here as an extension for authentication in getting tokens to access secured web pages.
+	
+	List<String> invalidMessages;
 
 	public String getLabel() {
 		return label;
@@ -205,6 +212,31 @@ public class Scenario {
 	}
 	public String toJson() throws Exception {
 		return JsonUtils.toJson(this);
+	}
+	@JsonIgnore
+	public boolean isValid() {
+		if(invalidMessages == null) {
+			getInvalidMessages();
+			return isValid();
+		}
+		return invalidMessages.isEmpty();
+	}
+	@JsonIgnore
+	public List<String> getInvalidMessages() {
+		if(invalidMessages != null) {
+			return invalidMessages;
+		}
+		invalidMessages = new ArrayList<String>();
+		
+		if(viewports != null) {
+			String id = this.label == null ? "[scenario]" : this.label;
+			for(ViewPort viewport : this.viewports) {
+				for(String msg : viewport.getInvalidMessages()) {
+					invalidMessages.add(id + "." + msg);
+				}
+			}
+		}
+		return invalidMessages;
 	}
 	public static Scenario getDefaultInstance() {
 		Scenario scenario = new Scenario();

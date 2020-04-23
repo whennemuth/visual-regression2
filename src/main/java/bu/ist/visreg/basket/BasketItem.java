@@ -1,5 +1,7 @@
 package bu.ist.visreg.basket;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,15 +10,29 @@ import bu.ist.visreg.basket.Basket.BasketEnum;
 public abstract class BasketItem {
 
 	protected boolean failed;
+	protected List<String> invalidMessages = new ArrayList<String>();
 	protected Basket basket;
 	protected String pathname;
 	protected String content;
 	protected Pattern extensionPattern = Pattern.compile("\\.[^\\.]+$");
 	
+	
 	public BasketItem(Basket basket, String pathname, String content) {
 		this.basket = basket;
 		this.pathname = pathname;
 		this.content = content;
+	}
+	public void addInvalidMessage(String msg) {
+		invalidMessages.add(msg);
+	}
+	public void addInvalidMessages(List<String> msgs) {
+		invalidMessages.addAll(msgs);
+	}
+	public List<String> getInvalidMessages() {
+		return invalidMessages;
+	}
+	public boolean isValid() {
+		return invalidMessages.isEmpty();
 	}
 	public boolean failed() {
 		return failed;
@@ -69,6 +85,16 @@ public abstract class BasketItem {
 	 */
 	public boolean gotoNextBasket() throws Exception {
 		Basket nextBasket = basket.getNextBasket(this);
+		return gotoNextBasket(nextBasket);
+	}
+	
+	public boolean gotoErrorBasket() throws Exception {
+		Basket errorBasket = basket.getBasketSystem().getBasket(BasketEnum.ERROR);
+		System.out.println("ERROR - Basket item: " + getPathname() + " is invalid. Moving to error basket.");
+		return gotoNextBasket(errorBasket);
+	}
+	
+	public boolean gotoNextBasket(Basket nextBasket) throws Exception {
 		if(nextBasket != null && ! nextBasket.equals(basket)) {			
 			basket.removeBasketItem(this);			
 			nextBasket.addBasketItem(this);
@@ -86,7 +112,7 @@ public abstract class BasketItem {
 			}
 			return true;
 		}
-		return false;
+		return false;		
 	}
 		
 	/**

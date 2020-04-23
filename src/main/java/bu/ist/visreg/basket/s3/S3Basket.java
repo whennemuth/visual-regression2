@@ -1,10 +1,8 @@
 package bu.ist.visreg.basket.s3;
 
-import java.util.List;
 import java.util.Map;
 
 import bu.ist.visreg.basket.Basket;
-import bu.ist.visreg.basket.BasketItem;
 import bu.ist.visreg.basket.BasketItemSplitter;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -36,23 +34,10 @@ public class S3Basket extends Basket {
 		Map<String, S3Object> map = bucket.getS3Objects();
 		for(S3Object o : map.values()) {
 			if(this.contains(o)) {
-				String content = bucket.downloadAsString(o.key());
-				BasketItem bi = new S3BasketItem(this, o.key(), content);
-				List<BasketItem> subitems = splitter.splitIntoPieces(bi);
-				if(subitems.isEmpty()) {
-					addBasketItem(bi);
-				}
-				else {
-					for(BasketItem subitem : subitems) {
-						subitem.persist();
-						addBasketItem(subitem);
-					}
-					if(subitems.size() > 1) {
-						System.out.println("Deleting: " + bi.getPathname());
-						bi.delete();
-					}
-					break;
-				}
+				String content = bucket.downloadAsString(o.key());				
+				loadOneBasketItem(
+						new S3BasketItem(this, o.key(), content), 
+						splitter);				
 			}
 		}
 	}

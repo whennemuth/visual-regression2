@@ -17,15 +17,17 @@ import bu.ist.visreg.util.JsonUtils;
 
 /**
  * A JobDefinition has two functions:
- * 
- * 1) A JobDefinition is basically an extension to a BackstopJson file providing an additional top level "inheritance" scenario for all
+ * <ol><li>
+ * A JobDefinition is basically an extension to a BackstopJson file providing an additional top level "inheritance" scenario for all
  * the scenarios in the scenarios collection to inherit properties from that they don't explicitly declare themselves. The resulting
  * scenario will in turn inherit from a predefined default scenario any properties left over that are still not explicitly declared.
- * 
- * 2) Can break itself into multiple BackstopJson configurations such that each of those configurations has only one scenario in its
+ * </li>
+ * <li>
+ * Can break itself into multiple BackstopJson configurations such that each of those configurations has only one scenario in its
  * scenarios collection. The idea behind this is to be able to implement batching of scenarios at a higher level and not at the
  * configuration level. For example, a docker container can be run once for one any given scenario that came with the original job
  * definition independent of the other scenarios that accompanied.
+ * </li></ol>
  *  
  * @author wrh
  *
@@ -34,6 +36,7 @@ import bu.ist.visreg.util.JsonUtils;
 public class JobDefinition extends BackstopJson {
 
 	private Scenario scenarioInheritance;
+	private List<BackstopJson> invalidBackstops = new ArrayList<BackstopJson>();
 	
 	public static JobDefinition getInstance(String json) throws JsonMappingException, JsonProcessingException {
 		JobDefinition def = null;
@@ -45,44 +48,75 @@ public class JobDefinition extends BackstopJson {
 		return def;
 	}
 	
+	/**
+	 * Constructor with no implementation.
+	 * Avoids {@link com.fasterxml.jackson.databind.exc.MismatchedInputException MismatchedInputException} 
+	 * by offering a default constructor for deserialization.
+	 */
 	public JobDefinition() {
-		/* Avoids com.fasterxml.jackson.databind.exc.MismatchedInputException by offering a default constructor for deserialization */
+		return;
 	}
 	
 	/**
-	 * A JobDefinition is basically
+	 * Construct multiple mini BackstopJson instances out of the scenarios from a single Backstopjson instance.
+	 * This process includes complementing unspecified attributes in both the BackstopJson and Scenario instances with default values
+	 * by getting a combined result from "merging" them into those default instances.
+	 * For each scenario found in this JobDefinition:
+	 * <ol><li>
+	 *   Obtain a new BackstopJson instance by Merging this instance into the default instance of BackstopJson.
+	 *   The new BackstopJson instance has only one Scenario. Complement this Scenario in the next steps.
+	 * </li><li>
+	 *   Start with a default Scenario and merge anything it can "inherit" from the inheritance scenario if one is found.
+	 * </li><li>
+	 *   Finalize the new single scenario as a new "merged" instance by merging it into the result of step 2.
+	 * </li></ol>
 	 * @return
 	 * @throws Exception
 	 */
 	@JsonIgnore
 	public List<BackstopJson> getBackstops() throws Exception {
 		ArrayList<BackstopJson> backstops = new ArrayList<BackstopJson>();
-		for(Scenario scenario1 : getScenarios()) {
-
-			ObjectMapper objectMapper = new ObjectMapper();
+		for(Scenario unmergedScenario : getScenarios()) {
 			
-			// 1) Merge this instance with the default instance of BackstopJson (non-null values of this instance prevail over default values);
-			ObjectReader objectReader = objectMapper.readerForUpdating(BackstopJson.getDefaultInstance());
-			BackstopJson backstop = objectReader.readValue(this.toJson());
+			// 1) Perform the merging
+			BackstopJson backstop = merge(BackstopJson.getDefaultInstance(), this.toJson());			
+			Scenario mergedScenario = null;
+			if(getScenarioInheritance() == null) {
+				mergedScenario = merge(Scenario.getDefaultInstance(), unmergedScenario.toJson());
+			}
+			else {
+				mergedScenario = merge(
+					merge(Scenario.getDefaultInstance(), getScenarioInheritance().toJson()),
+					unmergedScenario.toJson()
+				);
+			}
 			
-			// 2) Merge the inherited scenario with an instance of a default scenario (non-null inherited values prevail over default values).
-			objectReader = objectMapper.readerForUpdating(Scenario.getDefaultInstance());
-			Scenario scenario2 = objectReader.readValue(getScenarioInheritance().toJson());
-			
-			// 3) Merge the scenario for this iteration with the anything it can "inherit" from the inheritance scenario.
-			objectReader = objectMapper.readerForUpdating(scenario2);
-			Scenario scenario3 = objectReader.readValue(scenario1.toJson());
-			
-			// 4) Remove the default scenario.
+			// 2) Remove the default scenario.
 			backstop.setDefaultScenario(null);
 			
-			// 5) Replace the scenarios collection with a single entry collection containing the merged scenario.
-			backstop.clearScenarios().addScenario(scenario3);
+			// 3) Replace the scenarios collection with a single entry collection containing the merged scenario.
+			backstop.clearScenarios().addScenario(mergedScenario);
 			
-			// 6) Add the resulting backstop json object to the collection.
-			backstops.add(backstop);
+			// 4) Add the resulting backstop json object to the collection.
+			if(backstop.isValid()) {
+				backstops.add(backstop);
+			}
+			else {
+				invalidBackstops.add(backstop);
+			}
 		}
 		return backstops;
+	}
+	
+	private <T> T merge(T valueToUpdate, String updatingJson) throws JsonMappingException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectReader objectReader = objectMapper.readerForUpdating(valueToUpdate);
+		return objectReader.readValue(updatingJson);
+	}
+	
+	@JsonIgnore
+	public List<BackstopJson> getInvalidBackstops() {
+		return invalidBackstops;
 	}
 
 	public void setScenarioInheritance(Scenario scenarioInheritance) {

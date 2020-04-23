@@ -17,7 +17,6 @@ public abstract class BasketSystem {
 	public abstract void load(BasketItemSplitter splitter) throws Exception;
 	
 	public static BasketSystem getInstance(BasketType basketType, String rootLocation, BasketItemSplitter splitter) throws Exception {
-		
 		BasketSystem bs = null;
 		switch(basketType) {
 			case FILESYSTEM:

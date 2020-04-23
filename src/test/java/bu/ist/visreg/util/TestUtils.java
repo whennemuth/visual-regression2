@@ -3,7 +3,6 @@ package bu.ist.visreg.util;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.net.URLDecoder;
 
 public class TestUtils {
